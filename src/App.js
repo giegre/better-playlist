@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import './css/bootstrap.min.css';
 
 let defaultStyle = {
   color: '#666'
@@ -84,13 +85,14 @@ class Filter extends Component {
 
 class Playlist extends Component {
   render () {
+    let playlist = this.props.playlist;
     return (
-      <div style={{...defaultStyle, width: '25%', display:'inline-block'}}>
-        <h3>Playlist Name</h3>
+      <div style={defaultStyle} className="col-sm-3">
+        <h3>{playlist.name}</h3>
         <ul>
-          <li>Song 1</li>
-          <li>Song 2</li>
-          <li>Song 3</li>
+        {playlist.songs.map(song =>
+          <li style={{'margin-bottom':'15px'}}>{song.name}<br/>Duration: {song.duration}</li>
+        )}
         </ul>
       </div>
     );
@@ -108,6 +110,14 @@ class App extends Component {
     }, 1500)
   }
   render () {
+
+    {/*let playlistElements = []
+    if(this.state.tempData.user){
+      this.state.tempData.user.playlists.forEach(playlist =>
+        playlistElements.push(<Playlist playlist={playlist}/>)
+      )
+    } <- map versi panjang*/}
+
     return (
       <div className="App">
         {this.state.tempData.user ?
@@ -118,10 +128,9 @@ class App extends Component {
             <PlaylistCounter playlists={this.state.tempData.user.playlists}/>
             <HourCounter playlists={this.state.tempData.user.playlists}/>
             <Filter/>
-            <Playlist/>
-            <Playlist/>
-            <Playlist/>
-            <Playlist/>
+            {this.state.tempData.user.playlists.map(playlist =>
+               <Playlist playlist={playlist}/>
+            )}
           </div> : <h1 style={defaultStyle}>'Loading...'</h1>
         }
       </div>
