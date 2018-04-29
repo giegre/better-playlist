@@ -1,50 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
-import './css/bootstrap.min.css';
+import queryString from 'query-string'
 
 let defaultStyle = {
   color: '#666'
 }
-
-let tempServerData = {
-  user: {
-    name: 'Apabae',
-    playlists: [
-      {
-        name: 'My Favorites',
-        songs: [
-          {name:'Thriller', duration: 1345},
-          {name:'Beat It', duration: 1236},
-          {name:'Smooth Criminal', duration: 7000}
-        ]
-      },
-      {
-        name: 'Discover Weekly',
-        songs: [
-          {name:'One More Time', duration: 1345},
-          {name:'TT', duration: 1236},
-          {name:'Signal', duration: 7000}
-        ]
-      },
-      {
-        name: 'Another Playlists - Kpop!',
-        songs: [
-          {name:'I Got a Boy', duration: 1345},
-          {name:'Candy Pop', duration: 1236},
-          {name:'Cheer Up', duration: 7000}
-        ]
-      },
-      {
-        name: 'Another Playlists - Jpop!',
-        songs: [
-          {name:'365 Nichi no Kamihikouki', duration: 1345},
-          {name:'Brave Shine', duration: 1236},
-          {name:'Crossing Field', duration: 7000}
-        ]
-      }
-    ]
-  }
-};
 
 class PlaylistCounter extends Component {
   render () {
@@ -88,6 +48,7 @@ class Playlist extends Component {
     let playlist = this.props.playlist;
     return (
       <div style={defaultStyle} className="playlist-box">
+        <img src={playlist.imageUrl} style={{width: '70%'}}/>
         <h3>{playlist.name}</h3>
         <ul>
         {playlist.songs.map(song =>
@@ -103,30 +64,54 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      tempData: {},
+      serverData: {},
       filterString: ''
     }
   }
   componentDidMount() {
-    setTimeout(() => {
-      this.setState({tempData: tempServerData});
-    }, 1000);
+    let parsed = queryString.parse(window.location.search);
+    let accessToken = parsed.access_token;
+
+    fetch('https://api.spotify.com/v1/me', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then(response => response.json())
+    .then(data => this.setState({
+      user: {
+        name: data.id
+      }
+    }));
+
+    fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then(response => response.json())
+    .then(data => this.setState({
+      playlists: data.items.map(item => {
+        console.log(data.items);
+        return {
+          name: item.name,
+          imageUrl: item.images.find(image => image.width === 300).url,
+          songs: []
+        }
+      })
+    }));
+
   }
   render () {
 
-    let playlistToRender = this.state.tempData.user ? this.state.tempData.user.playlists
-      .filter(playlist =>
-        playlist.name.toLowerCase().includes(
-          this.state.filterString.toLowerCase()
-        )
-      ) : []
+    let playlistToRender =
+      this.state.user && this.state.playlists ?
+        this.state.playlists.filter(playlist =>
+          playlist.name.toLowerCase().includes(
+            this.state.filterString.toLowerCase()
+          )
+        ) : []
 
     return (
       <div className="App">
-        {this.state.tempData.user ?
+        {this.state.user ?
           <div>
-            <h1 style={{...defaultStyle, 'font-size': '54px'}}>
-              {this.state.tempData.user.name}s Playlists
+            <h1 style={{...defaultStyle, 'fontSize': '54px'}}>
+              {this.state.user.name}&apos;s Playlists
             </h1>
             <PlaylistCounter playlists={playlistToRender}/>
             <HourCounter playlists={playlistToRender}/>
@@ -134,7 +119,8 @@ class App extends Component {
             {playlistToRender.map(playlist =>
               <Playlist playlist={playlist}/>
             )}
-          </div> : <h1 style={defaultStyle}>'Loading...'</h1>
+          </div> : <button onClick={() => window.location = 'http://localhost:8888/login'}
+            style={{padding: '20px', 'fontSize': '32px', 'marginTop': '20px'}} >Sign in with Spotify</button>
         }
       </div>
     );

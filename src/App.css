@@ -34,7 +34,7 @@ h1 {
 
 .playlist-box {
   width: 25%;
-  margin: auto;
+  margin: 25px auto;
   padding: 0 15px;
   display: inline-block;
 }
