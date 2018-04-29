@@ -76,8 +76,8 @@ class Filter extends Component {
   render () {
     return (
       <div style={defaultStyle}>
-        <img/>
-        <input type="text"/>
+        <input type="text" onKeyUp={e =>
+          this.props.onInputChange(e.target.value)} />
       </div>
     );
   }
@@ -87,7 +87,7 @@ class Playlist extends Component {
   render () {
     let playlist = this.props.playlist;
     return (
-      <div style={defaultStyle} className="col-sm-3">
+      <div style={defaultStyle} className="playlist-box">
         <h3>{playlist.name}</h3>
         <ul>
         {playlist.songs.map(song =>
@@ -102,12 +102,15 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super();
-    this.state = {tempData: {}}
+    this.state = {
+      tempData: {},
+      filterString: ''
+    }
   }
   componentDidMount() {
     setTimeout(() => {
       this.setState({tempData: tempServerData});
-    }, 1500)
+    }, 1000);
   }
   render () {
 
@@ -127,9 +130,13 @@ class App extends Component {
             </h1>
             <PlaylistCounter playlists={this.state.tempData.user.playlists}/>
             <HourCounter playlists={this.state.tempData.user.playlists}/>
-            <Filter/>
-            {this.state.tempData.user.playlists.map(playlist =>
-               <Playlist playlist={playlist}/>
+            <Filter onInputChange={text => this.setState({filterString: text})} />
+            {this.state.tempData.user.playlists.filter(playlist =>
+              playlist.name.toLowerCase().includes(
+                this.state.filterString.toLowerCase()
+              )
+            ).map(playlist =>
+              <Playlist playlist={playlist}/>
             )}
           </div> : <h1 style={defaultStyle}>'Loading...'</h1>
         }
