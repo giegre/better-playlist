@@ -37,4 +37,5 @@ h1 {
   margin: 25px auto;
   padding: 0 15px;
   display: inline-block;
+  vertical-align: top;
 }
