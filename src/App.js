@@ -3,7 +3,8 @@ import './App.css';
 import queryString from 'query-string'
 
 let defaultStyle = {
-  color: '#666'
+  color: '#fff',
+  'font-family': 'Helvetica'
 }
 
 class PlaylistCounter extends Component {
@@ -50,7 +51,7 @@ class Playlist extends Component {
       <div style={defaultStyle} className="playlist-box">
         <img src={playlist.imageUrl} style={{width: '70%'}}/>
         <h3>{playlist.name}</h3>
-        <ul>
+        <ul className="songlist">
         {playlist.songs.map(song =>
           <li style={{'margin-bottom':'15px'}}>{song.name}</li>
         )}
